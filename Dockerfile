@@ -1,22 +1,28 @@
-FROM maven:3.9.4-eclipse-temurin-23 AS build
-
+# Stage 1: Build the Spring Boot application
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
-
 COPY pom.xml .
-
-RUN mvn dependency:go-offline -B
-
-# Copy the rest of the project files
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+# Install Maven
+RUN apk add --no-cache wget \
+    && wget https://dlcdn.apache.org/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz -O /tmp/maven.tar.gz \
+    && tar -xzf /tmp/maven.tar.gz -C /usr/local/ \
+    && mv /usr/local/apache-maven-3.9.7 /usr/local/maven \
+    && rm /tmp/maven.tar.gz
+ENV MAVEN_HOME=/usr/local/maven
+ENV PATH=$MAVEN_HOME/bin:$PATH
 
-FROM eclipse-temurin:23
+# Build the application
+RUN mvn clean package
 
+# Stage 2: Create a minimal runtime image
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 
-COPY --from=build /app/target/*.jar app.jar
-
+# Expose the application port (default for Spring Boot is 8080)
 EXPOSE 8080
 
+# Command to run the application
 CMD ["java", "-jar", "app.jar"]

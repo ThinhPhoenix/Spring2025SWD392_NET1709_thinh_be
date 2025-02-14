@@ -3,7 +3,6 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-COPY .env /app/.env 
 
 # Install Maven
 RUN apk add --no-cache wget \
@@ -21,6 +20,5 @@ RUN mvn clean package
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-COPY .env /app/.env
 EXPOSE 8080
 CMD ["java", "-jar", "app.jar"]

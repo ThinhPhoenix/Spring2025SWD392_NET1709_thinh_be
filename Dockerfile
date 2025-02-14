@@ -1,24 +1,27 @@
-# Stage 1: Build the Spring Boot application
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-21-jammy AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
+# Download dependencies and build the application
+RUN mvn clean package -DskipTests
 
-# Install Maven
-RUN apk add --no-cache wget \
-    && wget https://dlcdn.apache.org/maven/maven-3/3.9.7/binaries/apache-maven-3.9.7-bin.tar.gz -O /tmp/maven.tar.gz \
-    && tar -xzf /tmp/maven.tar.gz -C /usr/local/ \
-    && mv /usr/local/apache-maven-3.9.7 /usr/local/maven \
-    && rm /tmp/maven.tar.gz
-ENV MAVEN_HOME=/usr/local/maven
-ENV PATH=$MAVEN_HOME/bin:$PATH
-
-# Build the application
-RUN mvn clean package
-
-# Stage 2: Create a minimal runtime image
-FROM eclipse-temurin:21-jre-alpine
+# Runtime stage
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+
+# Create a non-root user for security
+RUN groupadd -r spring && useradd -r -g spring spring
+USER spring:spring
+
+# Copy the built jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Environment variable for Spring profile
+ENV SPRING_PROFILES_ACTIVE=prod
+
+# Expose the port your application runs on
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]

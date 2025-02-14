@@ -3,6 +3,7 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
+COPY .env /app/.env 
 
 # Install Maven
 RUN apk add --no-cache wget \
@@ -20,9 +21,6 @@ RUN mvn clean package
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-
-# Expose the application port (default for Spring Boot is 8080)
+COPY .env /app/.env
 EXPOSE 8080
-
-# Command to run the application
 CMD ["java", "-jar", "app.jar"]

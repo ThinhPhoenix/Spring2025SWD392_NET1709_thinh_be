@@ -41,7 +41,7 @@ public class JwtUtils {
   }
 
   public String generateJwtCookie(UserDetailsImpl userPrincipal) {
-    String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+    String jwt = generateTokenFromUsername(userPrincipal.getId());
     return jwt;
   }
 
@@ -76,9 +76,9 @@ public class JwtUtils {
     return false;
   }
   
-  public String generateTokenFromUsername(String username) {   
+  public String generateTokenFromUsername(String userId) {   
     return Jwts.builder()
-              .setSubject(username)
+              .setSubject(userId)
               .setIssuedAt(new Date())
               .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
               .signWith(key(), SignatureAlgorithm.HS256)

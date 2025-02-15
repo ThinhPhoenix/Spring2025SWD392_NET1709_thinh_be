@@ -1,22 +1,14 @@
-FROM maven:3.9.4-eclipse-temurin-23 AS build
-
+# Build stage
+FROM maven:3.8.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
-
 COPY pom.xml .
-
-RUN mvn dependency:go-offline -B
-
-# Copy the rest of the project files
+RUN mvn dependency:go-offline
 COPY src ./src
+RUN mvn package -DskipTests
 
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:23
-
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-
 COPY --from=build /app/target/*.jar app.jar
-
 EXPOSE 8080
-
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

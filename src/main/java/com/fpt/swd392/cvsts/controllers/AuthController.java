@@ -17,10 +17,13 @@ import com.fpt.swd392.cvsts.dto.request.SignupRequest;
 import com.fpt.swd392.cvsts.dto.response.JwtResponse;
 import com.fpt.swd392.cvsts.dto.response.UserResponse;
 import com.fpt.swd392.cvsts.entities.User;
+import com.fpt.swd392.cvsts.enums.Role;
 import com.fpt.swd392.cvsts.security.jwt.JwtUtils;
 import com.fpt.swd392.cvsts.services.UserDetailsImpl;
 import com.fpt.swd392.cvsts.services.UserService;
 import com.fpt.swd392.cvsts.utils.ApiResponse;
+
+import jakarta.validation.Valid;
 
 import org.springframework.security.core.Authentication;
 
@@ -39,7 +42,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody SigninRequest loginRequest) {
         
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -52,11 +55,12 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
+            Role role = Role.valueOf(signupRequest.getRole().toUpperCase());
             User user = userService.registerUser(signupRequest);
             UserResponse userResponse = new UserResponse(user);
             ApiResponse<UserResponse> response = new ApiResponse<>("201", userResponse, "User registered successfully!");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 }

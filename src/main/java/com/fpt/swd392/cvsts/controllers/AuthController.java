@@ -13,9 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fpt.swd392.cvsts.dto.request.SigninRequest;
+import com.fpt.swd392.cvsts.dto.request.SignupRequest;
 import com.fpt.swd392.cvsts.dto.response.JwtResponse;
+import com.fpt.swd392.cvsts.dto.response.UserResponse;
+import com.fpt.swd392.cvsts.entities.User;
 import com.fpt.swd392.cvsts.security.jwt.JwtUtils;
 import com.fpt.swd392.cvsts.services.UserDetailsImpl;
+import com.fpt.swd392.cvsts.services.UserService;
+import com.fpt.swd392.cvsts.utils.ApiResponse;
+
 import org.springframework.security.core.Authentication;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -29,27 +35,28 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
-        try {
+        
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtCookie((UserDetailsImpl) authentication.getPrincipal()).toString();
-            return ResponseEntity.ok(new JwtResponse(jwt));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new String("Error: " + e.getMessage()));
-        }
-
+            JwtResponse jwtResponse = new JwtResponse(jwt);
+            ApiResponse<JwtResponse> response = new ApiResponse<>("200", jwtResponse, "Login successfully");
+            return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
-    public String postMethodName(@RequestBody String entity) {
-        // TODO: process POST request
-
-        return entity;
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest) {
+            User user = userService.registerUser(signupRequest);
+            UserResponse userResponse = new UserResponse(user);
+            ApiResponse<UserResponse> response = new ApiResponse<>("201", userResponse, "User registered successfully!");
+            return ResponseEntity.ok(response);
     }
 
 }

@@ -16,9 +16,9 @@ public interface UserRepository extends JpaRepository<User, String>{
     Boolean existsByEmail(String email);
     Optional<User> findById(String id);
 
-    @Query("SELECT vr FROM VaccinationRecord vr WHERE vr.id = :id")
+    @Query(value = "select * from vaccination_records where id = :id", nativeQuery = true)
     Optional<VaccinationRecord> findVaccinationRecordById(@Param("id") String id);
 
-    @Query("SELECT vr FROM VaccinationRecord vr WHERE vr.customerId = :customerId")
+    @Query(value = "select * from vaccination_records where customer_id = :customerId", nativeQuery = true)
     List<VaccinationRecord> findVaccinationRecordsByUserId(@Param("customerId") String customerId);
 }

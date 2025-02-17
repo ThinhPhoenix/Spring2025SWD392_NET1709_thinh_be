@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class SignupRequest {
     @NotBlank(message = "Fullname is required")
-    // @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Fullname must be alphanumeric")
+    @Pattern(regexp = "^(?!\\s+$)[\\p{L}\\s]+$", message = "fullname must not contain special characters and numbers")
     private String fullname;
 
     @Valid

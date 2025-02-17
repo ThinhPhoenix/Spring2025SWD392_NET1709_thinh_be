@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -63,4 +64,26 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/me")
+    public ResponseEntity<?> getUserByToken(@RequestHeader(name = "Authorization") String token) {
+        try {
+            // Remove the "Bearer " prefix from the token
+            String jwtToken = token.substring(7);
+            
+            // Parse the token to get user's email
+            String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
+            
+            // Fetch the user from the database
+            User user = userService.getUserById(userId);
+            
+            // Return the user response
+            UserResponse userResponse = new UserResponse(user);
+            ApiResponse<UserResponse> response = new ApiResponse<>("200", userResponse, "User retrieved successfully");
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            ApiResponse<?> errorResponse = new ApiResponse<>("401", null, "Invalid token or unauthorized access");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
 }

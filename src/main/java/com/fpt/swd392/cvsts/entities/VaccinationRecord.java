@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "vaccination_records")
-@Data
+@Data      
 @AllArgsConstructor
 @NoArgsConstructor
 public class VaccinationRecord {

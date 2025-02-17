@@ -1,6 +1,7 @@
 package com.fpt.swd392.cvsts.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fpt.swd392.cvsts.dto.request.SignupRequest;
 import com.fpt.swd392.cvsts.entities.User;
+import com.fpt.swd392.cvsts.entities.VaccinationRecord;
 import com.fpt.swd392.cvsts.repositories.UserRepository;
 
 @Service
@@ -49,5 +51,13 @@ public class UserService {
 
     public User getUserById(String id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public VaccinationRecord getVaccinationRecordDetail(String recordId) {
+        return userRepository.findVaccinationRecordById(recordId).orElseThrow(() -> new RuntimeException("Vaccination record not found"));
+    }
+
+    public List<VaccinationRecord> getVaccinationRecordsByUserId(String userId) {
+        return userRepository.findVaccinationRecordsByUserId(userId);
     }
 }

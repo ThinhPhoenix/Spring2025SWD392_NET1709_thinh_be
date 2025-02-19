@@ -74,11 +74,8 @@ public class AuthController {
             // Parse the token to get user's email
             String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
             
-            // Fetch the user from the database
-            User user = userService.getUserById(userId);
-            
             // Return the user response
-            UserResponse userResponse = new UserResponse(user);
+            UserResponse userResponse = userService.getUserInfo(userId);
             ApiResponse<UserResponse> response = new ApiResponse<>("200", userResponse, "User retrieved successfully");
             return ResponseEntity.ok(response);
             

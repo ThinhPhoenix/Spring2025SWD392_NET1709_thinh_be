@@ -16,7 +16,7 @@ import com.fpt.swd392.cvsts.dto.response.UserResponse;
 import com.fpt.swd392.cvsts.entities.User;
 import com.fpt.swd392.cvsts.entities.VaccinationRecord;
 import com.fpt.swd392.cvsts.repositories.UserRepository;
-import com.fpt.swd392.cvsts.repositories.VaccinationRepository;
+import com.fpt.swd392.cvsts.repositories.VaccinationRecordRepository;
 
 @Service
 public class UserService {
@@ -30,7 +30,7 @@ public class UserService {
     private AddressService addressService;
 
     @Autowired
-    private VaccinationRepository vaccinationRepository;
+    private VaccinationRecordRepository vaccinationRepository;
 
     @Transactional
     public User registerUser(SignupRequest request) {

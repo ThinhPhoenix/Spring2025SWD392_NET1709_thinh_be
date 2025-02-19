@@ -13,6 +13,7 @@ import com.fpt.swd392.cvsts.dto.request.SignupRequest;
 import com.fpt.swd392.cvsts.entities.User;
 import com.fpt.swd392.cvsts.entities.VaccinationRecord;
 import com.fpt.swd392.cvsts.repositories.UserRepository;
+import com.fpt.swd392.cvsts.repositories.VaccinationRepository;
 
 @Service
 public class UserService {
@@ -24,6 +25,9 @@ public class UserService {
 
     @Autowired
     private AddressService addressService;
+
+    @Autowired
+    private VaccinationRepository vaccinationRepository;
 
     @Transactional
     public User registerUser(SignupRequest request) {
@@ -54,10 +58,44 @@ public class UserService {
     }
 
     public VaccinationRecord getVaccinationRecordDetail(String recordId) {
-        return userRepository.findVaccinationRecordById(recordId).orElseThrow(() -> new RuntimeException("Vaccination record not found"));
+        return vaccinationRepository.findById(recordId).orElseThrow(() -> new RuntimeException("Record not found"));
     }
 
     public List<VaccinationRecord> getVaccinationRecordsByUserId(String userId) {
-        return userRepository.findVaccinationRecordsByUserId(userId);
+        return vaccinationRepository.findByCustomerId(userId);
+    }
+
+    public VaccinationRecord createVaccinationRecord(VaccinationRecord record) {
+        record.setId(UUID.randomUUID().toString());
+        record.setCreatedAt(LocalDateTime.now());
+        return vaccinationRepository.save(record);
+    }
+
+    public VaccinationRecord updateVaccinationRecord(VaccinationRecord record) {
+        // Check if record exists
+        VaccinationRecord existingRecord = vaccinationRepository.findById(record.getId())
+            .orElseThrow(() -> new RuntimeException("Vaccination record not found"));
+        
+        // Update mutable fields
+        existingRecord.setChildName(record.getChildName());
+        existingRecord.setChildGender(record.getChildGender());
+        existingRecord.setDateOfBirth(record.getDateOfBirth());
+        existingRecord.setParentName(record.getParentName());
+        existingRecord.setBirthPlace(record.getBirthPlace());
+        existingRecord.setGestationAge(record.getGestationAge());
+        existingRecord.setBirthMethod(record.getBirthMethod());
+        existingRecord.setBirthWeight(record.getBirthWeight());
+        existingRecord.setBirthHeight(record.getBirthHeight());
+        existingRecord.setAbnormalities(record.getAbnormalities());
+        
+        // Update timestamp
+        existingRecord.setUpdatedAt(LocalDateTime.now());
+        
+        // Save and return
+        return vaccinationRepository.save(existingRecord);
+    }
+
+    public void deleteVaccinationRecord(String recordId) {
+        vaccinationRepository.deleteById(recordId);
     }
 }

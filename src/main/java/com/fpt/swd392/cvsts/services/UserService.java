@@ -19,7 +19,7 @@ import com.fpt.swd392.cvsts.repositories.UserRepository;
 import com.fpt.swd392.cvsts.repositories.VaccinationRecordRepository;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
     

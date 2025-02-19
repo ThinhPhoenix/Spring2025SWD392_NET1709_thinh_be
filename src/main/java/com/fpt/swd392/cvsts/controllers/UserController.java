@@ -1,6 +1,10 @@
 package com.fpt.swd392.cvsts.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fpt.swd392.cvsts.entities.Blog;
 import com.fpt.swd392.cvsts.entities.VaccinationRecord;
+import com.fpt.swd392.cvsts.services.IBlogService;
 import com.fpt.swd392.cvsts.services.UserService;
 
 @RestController
@@ -20,6 +26,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    private IBlogService blogService;
+
+    public UserController(UserService userService, IBlogService blogService) {
+        this.userService = userService;
+        this.blogService = blogService;
+    }
 
     @PostMapping("/vac-record")
     public ResponseEntity<?> createVaccinationRecord(@RequestBody VaccinationRecord record) {
@@ -71,6 +83,27 @@ public class UserController {
                 .badRequest()
                 .body("Error deleting vaccination record: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/blogs")
+    public ResponseEntity<?> getAllBlogs(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        Pageable pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(Sort.Direction.fromString(direction), sort)
+        );
+        Page<Blog> blogs = blogService.getAllBlogs(pageable);
+        return ResponseEntity.ok(blogs);
+    }
+
+    @GetMapping("/blog")
+    public ResponseEntity<?> getBlogById(@RequestParam String blogId) {
+        return ResponseEntity.ok(blogService.getBlogById(blogId));
     }
 
 }

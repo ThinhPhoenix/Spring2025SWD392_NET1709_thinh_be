@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -64,7 +65,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/me")
+    @GetMapping("/me")
     public ResponseEntity<?> getUserByToken(@RequestHeader(name = "Authorization") String token) {
         try {
             // Remove the "Bearer " prefix from the token
@@ -73,11 +74,8 @@ public class AuthController {
             // Parse the token to get user's email
             String userId = jwtUtils.getUserNameFromJwtToken(jwtToken);
             
-            // Fetch the user from the database
-            User user = userService.getUserById(userId);
-            
             // Return the user response
-            UserResponse userResponse = new UserResponse(user);
+            UserResponse userResponse = userService.getUserInfo(userId);
             ApiResponse<UserResponse> response = new ApiResponse<>("200", userResponse, "User retrieved successfully");
             return ResponseEntity.ok(response);
             

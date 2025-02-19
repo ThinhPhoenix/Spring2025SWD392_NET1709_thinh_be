@@ -21,4 +21,24 @@ public interface UserRepository extends JpaRepository<User, String>{
 
     @Query(value = "select * from vaccination_records where customer_id = :customerId", nativeQuery = true)
     List<VaccinationRecord> findVaccinationRecordsByUserId(@Param("customerId") String customerId);
+
+    @Query(value = """
+            select 
+	            u.id,
+                u.fullname,
+                u.email,
+                u.phone_number,
+                u.gender,
+                a.unit_number,
+                a.ward,
+                a.district,
+                a.province,
+                u.role,
+                u.birthday,
+                u.created_at
+            from users u
+            left join addresses a on u.id = a.user_id
+            where u.id = :id
+                """, nativeQuery = true)
+    Optional<Object[]> getUserInfo(@Param("id") String id);
 }

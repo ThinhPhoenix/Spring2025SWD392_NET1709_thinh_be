@@ -15,4 +15,13 @@ public class ApiResponse<T> {
         this.message = message;
         this.paging = null;
     }
+
+    public ApiResponse(String code, T data, String message, Paging paging) {
+        this.code = code;
+        this.data = data;
+        this.message = message;
+        this.paging = paging;
+    }
+
+    
 }

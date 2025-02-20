@@ -25,12 +25,11 @@ public class VaccinePackageController {
     private VaccinePackageService vaccinePackageService;
 
     @GetMapping("/vaccine-packages")
-    public ResponseEntity<ApiResponse<Page<VaccineServiceDTO>>> getAllVaccinePackageDetails(
-        @PageableDefault(size = 10, sort = "vaccine_package_id") Pageable pageable
-        ) {
-        Page<VaccineServiceDTO> vaccinePackageDetails = vaccinePackageService.getAllVaccinePackageDetails(pageable);
-        ApiResponse<Page<VaccineServiceDTO>> response = new ApiResponse<>("200", vaccinePackageDetails,
-                "Get all vaccine packages successfully");
+    public ResponseEntity<ApiResponse<List<VaccineServiceDTO>>> getAllVaccinePackageDetails(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        ApiResponse<List<VaccineServiceDTO>> response = vaccinePackageService.getAllVaccinePackageDetails(page, size);
+
         return ResponseEntity.ok(response);
     }
 

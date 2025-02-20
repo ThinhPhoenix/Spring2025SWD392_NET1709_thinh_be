@@ -1,5 +1,6 @@
 package com.fpt.swd392.cvsts.services;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,12 @@ import com.fpt.swd392.cvsts.dto.response.VaccineLineServiceDTO;
 import com.fpt.swd392.cvsts.dto.response.VaccineServiceDTO;
 import com.fpt.swd392.cvsts.entities.VaccinePackage;
 import com.fpt.swd392.cvsts.repositories.VaccinePackageRepository;
+import com.fpt.swd392.cvsts.utils.ApiResponse;
+import com.fpt.swd392.cvsts.utils.ListPageable;
+import com.fpt.swd392.cvsts.utils.PageBound;
+import com.fpt.swd392.cvsts.utils.Paging;
+import com.fpt.swd392.cvsts.utils.Utils;
+
 import jakarta.transaction.Transactional;
 
 @Service
@@ -24,17 +31,17 @@ public class VaccinePackageService {
     @Autowired
     private VaccinePackageRepository vaccinePackageRepository;
 
-    public Page<VaccineServiceDTO> getAllVaccinePackageDetails(Pageable pageable) {
-        List<Object[]> results = vaccinePackageRepository.getAllVaccinePackagesDetails(pageable.getPageSize(), (int) pageable.getOffset());
-        long total = vaccinePackageRepository.countVacinePackageDetails();    
+    public ApiResponse<List<VaccineServiceDTO>> getAllVaccinePackageDetails(int page , int size) {
+        try {
+            List<Object[]> results = vaccinePackageRepository.getAllVaccinePackagesDetails();    
         List<VaccineServiceDTO> dtos = results.stream().map(vpd -> {
-            VaccineServiceDTO vaccinePackageDetail = new VaccineServiceDTO();
-            vaccinePackageDetail.setVaccinePackageId(vpd[0].toString());
-            vaccinePackageDetail.setVaccinePackageName(vpd[1].toString());
-            vaccinePackageDetail.setDescription(vpd[2].toString());
-            vaccinePackageDetail.setTotalPrice(Integer.parseInt(vpd[3].toString()));
-            vaccinePackageDetail.setToltalVaccinePrice(Integer.parseInt(vpd[7].toString()));
-            return vaccinePackageDetail;
+            VaccineServiceDTO vaccinePackage = new VaccineServiceDTO();
+            vaccinePackage.setVaccinePackageId(vpd[0].toString());
+            vaccinePackage.setVaccinePackageName(vpd[1].toString());
+            vaccinePackage.setDescription(vpd[2].toString());
+            vaccinePackage.setTotalPrice(Integer.parseInt(vpd[3].toString()));
+            vaccinePackage.setToltalVaccinePrice(Integer.parseInt(vpd[8].toString()));
+            return vaccinePackage;
         }).collect(Collectors.toList());
         Set<VaccineServiceDTO> vaccinePackageDetails = new HashSet<>(dtos);
         
@@ -47,9 +54,29 @@ public class VaccinePackageService {
             vaccineLineServiceDTO.setDoseNumber(Integer.parseInt(vpd[7].toString()));
             return vaccineLineServiceDTO;
         }).collect(Collectors.toList());
+        createVaccinePackageDetail(vaccinePackageDetails, vaccineLineServiceDTOs);
 
         
+        List<VaccineServiceDTO> list = new ArrayList<>(vaccinePackageDetails);
+        PageBound pageBound = Utils.calculatePageBounds(page, size, list.size());
+        List<VaccineServiceDTO> paginatedList = list.subList(pageBound.getStartIndex(), pageBound.getEndIndex());
 
-        return new PageImpl<>(dtos, pageable, total);
+        Paging paging = new Paging(page, size, Utils.calculateTotalPage(list.size(), size));
+        return new ApiResponse<>("200", paginatedList, "Get all vaccine packages successfully", paging);
+        
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public void createVaccinePackageDetail (Set<VaccineServiceDTO> vaccinePackages, List<VaccineLineServiceDTO> vaccineLineServiceDTOs){
+        for (VaccineServiceDTO vaccinePackage : vaccinePackages) {
+            for (VaccineLineServiceDTO vaccineLineServiceDTO : vaccineLineServiceDTOs) {
+                if (vaccinePackage.getVaccinePackageId().equals(vaccineLineServiceDTO.getVaccinePackageId())) {
+                    vaccinePackage.getVaccineLineServiceDTO().add(vaccineLineServiceDTO);
+                }
+            }
+        }
     }
 }

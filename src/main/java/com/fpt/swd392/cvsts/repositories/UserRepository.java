@@ -41,4 +41,21 @@ public interface UserRepository extends JpaRepository<User, String>{
             where u.id = :id
                 """, nativeQuery = true)
     Optional<Object[]> getUserInfo(@Param("id") String id);
+
+    @Query(value = """
+            select 
+	            vr.customer_id, 
+                vr.id as vaccination_record_id,
+                a.id as appointment_id,  
+                ad.id as appointment_detail_id,
+                ad.type,
+                ad.scheduled_date,
+                ad.time_from,
+                ad.status
+            from vaccination_records vr
+            inner join appointments a on vr.id = a.vaccination_record_id
+            inner join appointment_details ad on a.id = ad.appointment_id
+            where vr.customer_id = :customerId and ad.status <> 'CANCELLED';
+                """, nativeQuery = true)
+    List<Object[]> findVaccinationAppointmentsByCustomerId(@Param("customerId") String customerId);
 }

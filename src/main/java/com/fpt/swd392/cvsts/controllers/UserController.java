@@ -1,6 +1,7 @@
 package com.fpt.swd392.cvsts.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.pulsar.PulsarProperties.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fpt.swd392.cvsts.entities.Blog;
 import com.fpt.swd392.cvsts.entities.VaccinationRecord;
 import com.fpt.swd392.cvsts.services.IBlogService;
+import com.fpt.swd392.cvsts.services.TransactionService;
 import com.fpt.swd392.cvsts.services.UserService;
 
 @RestController
@@ -27,8 +29,10 @@ public class UserController {
     @Autowired
     private UserService userService;
     private IBlogService blogService;
+    private TransactionService transactionService;
 
-    public UserController(UserService userService, IBlogService blogService) {
+    public UserController(UserService userService, IBlogService blogService, TransactionService transactionService) {
+        this.transactionService = transactionService;
         this.userService = userService;
         this.blogService = blogService;
     }
@@ -104,6 +108,18 @@ public class UserController {
     @GetMapping("/blog")
     public ResponseEntity<?> getBlogById(@RequestParam String blogId) {
         return ResponseEntity.ok(blogService.getBlogById(blogId));
+    }
+
+    @PostMapping("/refund")
+    public ResponseEntity<?> createRefundRequest(@RequestParam String appointmentId) {
+        try {
+            transactionService.createRefundRequest(appointmentId);
+            return ResponseEntity.ok("Refund request created successfully");
+        } catch (Exception e) {
+            return ResponseEntity
+                .badRequest()
+                .body("Error creating refund request: " + e.getMessage());
+        }
     }
 
 }

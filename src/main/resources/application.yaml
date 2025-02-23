@@ -29,6 +29,19 @@ logging:
             sql:
               BasicBinder: TRACE
 
+mail:
+  host: ${SMTP_HOST}
+  port: ${SMTP_PORT}
+  username: ${GMAIL_USERNAME}
+  password: ${GMAIL_APP_PASSWORD}
+  properties:
+    mail:
+      debug: true
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+
 zapz:
   app:
     jwtSecret: ${JWT_SECRET}

@@ -4,13 +4,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fpt.swd392.cvsts.dto.AddressDTO;
+import com.fpt.swd392.cvsts.dto.TemplateDoseIntervalDTO;
+import com.fpt.swd392.cvsts.dto.VaccinationAppointmentDTO;
 import com.fpt.swd392.cvsts.dto.request.SignupRequest;
 import com.fpt.swd392.cvsts.dto.response.UserResponse;
 import com.fpt.swd392.cvsts.entities.User;
@@ -133,6 +137,34 @@ public class UserService implements IUserService {
                 }
                 return dto;
             })
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
+    public List<VaccinationAppointmentDTO> getCustomerVaccinationSchedule(String customerId){
+        List<Object[]> results = userRepository.findVaccinationAppointmentsByCustomerId(customerId);
+        return convertVaccinationAppointmentDTOs(results);
+    }
+
+    public List<VaccinationAppointmentDTO> convertVaccinationAppointmentDTOs(List<Object[]> results) {
+        List<VaccinationAppointmentDTO> vaccinationAppointmentDTOs = results.stream().map(r -> {
+            VaccinationAppointmentDTO vaccinationAppointmentDTO = new VaccinationAppointmentDTO();
+            vaccinationAppointmentDTO.setCustomerId(r[0].toString());
+            vaccinationAppointmentDTO.setVaccinationRecordId(r[1].toString());
+            vaccinationAppointmentDTO.setAppointmentId(r[2].toString());
+            vaccinationAppointmentDTO.setAppointmentDetailId(r[3].toString());
+            vaccinationAppointmentDTO.setType(r[4].toString());
+            if (r[5] != null) {
+                java.sql.Date sqlDate = (java.sql.Date) r[5];
+                vaccinationAppointmentDTO.setScheduledDate(sqlDate.toLocalDate());
+            }
+            if (r[6] != null) {
+                java.sql.Time sqlTime = (java.sql.Time) r[6];
+                vaccinationAppointmentDTO.setTimeFrom(sqlTime.toLocalTime());
+            }
+            vaccinationAppointmentDTO.setStatus(r[7].toString());
+            return vaccinationAppointmentDTO;
+        }).collect(Collectors.toList());
+        return vaccinationAppointmentDTOs;
+    }
+    
 }

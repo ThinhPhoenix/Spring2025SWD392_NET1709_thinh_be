@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +22,9 @@ import com.fpt.swd392.cvsts.entities.VaccinationRecord;
 import com.fpt.swd392.cvsts.services.IBlogService;
 import com.fpt.swd392.cvsts.services.TransactionService;
 import com.fpt.swd392.cvsts.services.UserService;
+import com.fpt.swd392.cvsts.utils.ApiResponse;
+import java.util.List;
+import com.fpt.swd392.cvsts.dto.VaccinationAppointmentDTO;
 
 @RestController
 @RequestMapping("/api/user")
@@ -122,4 +126,10 @@ public class UserController {
         }
     }
 
+    @GetMapping("/schedule/{id}")
+    public ResponseEntity<ApiResponse<List<VaccinationAppointmentDTO>>> getCustomerVaccinationSchedule(@PathVariable String id) {
+        List<VaccinationAppointmentDTO> results = userService.getCustomerVaccinationSchedule(id);
+        ApiResponse<List<VaccinationAppointmentDTO>> response = new ApiResponse<>("200", results, "Appointment schedule retrieved successfully");
+        return ResponseEntity.ok(response);
+    }
 }

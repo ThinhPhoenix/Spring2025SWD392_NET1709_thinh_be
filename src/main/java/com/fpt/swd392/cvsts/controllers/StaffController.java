@@ -1,14 +1,21 @@
 package com.fpt.swd392.cvsts.controllers;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.fpt.swd392.cvsts.dto.BlogDTO;
 import com.fpt.swd392.cvsts.entities.Blog;
 import com.fpt.swd392.cvsts.services.IBlogService;
+import com.fpt.swd392.cvsts.utils.ApiResponse;
+import com.fpt.swd392.cvsts.utils.ListPageable;
 
 @RestController
 @RequestMapping("/api/staff")
@@ -31,8 +38,10 @@ public class StaffController {
     }
 
     @GetMapping("/blog")
-    public ResponseEntity<?> getBlogById(@RequestParam String blogId) {
-        return ResponseEntity.ok(blogService.getBlogById(blogId));
+    public ResponseEntity<ApiResponse<BlogDTO>> getBlogById(@RequestParam String blogId) {
+        BlogDTO blogDTO = blogService.getBlogDTOById(blogId);
+        ApiResponse<BlogDTO> response = new ApiResponse<>("200", blogDTO, "Blog retrieved successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PatchMapping("/blog")
@@ -60,18 +69,14 @@ public class StaffController {
     }
 
     @GetMapping("/blogs")
-    public ResponseEntity<?> getAllBlogs(
-            @RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<ApiResponse<List<BlogDTO>>> getAllBlogs(
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sort,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "created_at") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
 
-        Pageable pageable = PageRequest.of(
-            page,
-            size,
-            Sort.by(Sort.Direction.fromString(direction), sort)
-        );
-        Page<Blog> blogs = blogService.getAllBlogs(pageable);
-        return ResponseEntity.ok(blogs);
+        ListPageable<List<BlogDTO>> listPageable = blogService.getAllBlogDTOs(page, size, sort, direction);
+        ApiResponse<List<BlogDTO>> response = new ApiResponse<>("200", listPageable.getList(), "Blogs retrieved successfully", listPageable.getPaging());
+        return ResponseEntity.ok(response);
     }
 }

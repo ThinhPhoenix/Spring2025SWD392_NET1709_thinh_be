@@ -32,8 +32,8 @@ logging:
 mail:
   host: ${SMTP_HOST}
   port: ${SMTP_PORT}
-  username: ${GMAIL_USERNAME}
-  password: ${GMAIL_APP_PASSWORD}
+  username: ${EMAIL_USERNAME}
+  password: ${EMAIL_PASSWORD}
   properties:
     mail:
       debug: true

@@ -2,6 +2,9 @@ package com.fpt.swd392.cvsts.entities;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,7 +34,10 @@ public class User {
     private String phoneNumber;
     
     private String email;
+
+    @JsonIgnore
     private String password;
+    
     private LocalDate birthday;
     
     @Column(name = "created_at")

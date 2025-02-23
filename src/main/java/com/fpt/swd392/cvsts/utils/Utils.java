@@ -1,5 +1,7 @@
 package com.fpt.swd392.cvsts.utils;
 
+import java.util.UUID;
+
 public class Utils {
     public static PageBound calculatePageBounds (int currentPage, int pageSize, int length) {
         if (length < 0) {
@@ -36,5 +38,9 @@ public class Utils {
 
     public static int calculateTotalPage(int totalItems, int pageSize) {
         return (int) Math.ceil((double) totalItems / pageSize);
+    }
+
+    public static String generateUUID() {
+        return UUID.randomUUID().toString();
     }
 }

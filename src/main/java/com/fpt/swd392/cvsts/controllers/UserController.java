@@ -114,7 +114,7 @@ public class UserController {
         return ResponseEntity.ok(blogService.getBlogById(blogId));
     }
 
-    @PostMapping("/refund")
+    @PostMapping("/refund-request")
     public ResponseEntity<?> createRefundRequest(@RequestParam String appointmentId) {
         try {
             transactionService.createRefundRequest(appointmentId);

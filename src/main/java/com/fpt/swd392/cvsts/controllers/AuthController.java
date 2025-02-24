@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fpt.swd392.cvsts.dto.request.SigninRequest;
 import com.fpt.swd392.cvsts.dto.request.SignupRequest;
-import com.fpt.swd392.cvsts.dto.response.JwtResponse;
 import com.fpt.swd392.cvsts.dto.response.UserResponse;
 import com.fpt.swd392.cvsts.entities.User;
 import com.fpt.swd392.cvsts.enums.Role;
@@ -51,8 +50,10 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtCookie((UserDetailsImpl) authentication.getPrincipal()).toString();
-            JwtResponse jwtResponse = new JwtResponse(jwt);
-            ApiResponse<JwtResponse> response = new ApiResponse<>("200", jwtResponse, "Login successfully");
+            User user = userService.getUserById(((UserDetailsImpl) authentication.getPrincipal()).getId());
+            UserResponse userResponse = new UserResponse(user);
+            userResponse.setToken(jwt);
+            ApiResponse<UserResponse> response = new ApiResponse<>("200", userResponse, "Login successfully");
             return ResponseEntity.ok(response);
     }
 

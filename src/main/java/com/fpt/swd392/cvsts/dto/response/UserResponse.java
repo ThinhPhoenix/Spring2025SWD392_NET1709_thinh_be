@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.cglib.core.Local;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fpt.swd392.cvsts.dto.AddressDTO;
 import com.fpt.swd392.cvsts.entities.User;
 
@@ -13,7 +14,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserResponse {
+    private String token;
     private String id;
     private String fullname;
     private String email;

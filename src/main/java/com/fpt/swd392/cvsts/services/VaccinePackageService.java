@@ -7,18 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.fpt.swd392.cvsts.dto.response.VaccineLineServiceDTO;
 import com.fpt.swd392.cvsts.dto.response.VaccineServiceDTO;
-import com.fpt.swd392.cvsts.entities.VaccinePackage;
 import com.fpt.swd392.cvsts.repositories.VaccinePackageRepository;
 import com.fpt.swd392.cvsts.utils.ApiResponse;
-import com.fpt.swd392.cvsts.utils.ListPageable;
 import com.fpt.swd392.cvsts.utils.PageBound;
 import com.fpt.swd392.cvsts.utils.Paging;
 import com.fpt.swd392.cvsts.utils.Utils;

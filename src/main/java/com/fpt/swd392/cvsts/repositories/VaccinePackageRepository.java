@@ -30,4 +30,9 @@ public interface VaccinePackageRepository extends JpaRepository<VaccinePackage, 
             order by vp.name asc
                 """, nativeQuery = true)
     List<Object[]> getAllVaccinePackagesDetails();
+
+    @Query(value = """
+            select id, name from vaccine_packages
+                """, nativeQuery = true)
+    List<Object[]> getVaccinePackageIdandName();
 }

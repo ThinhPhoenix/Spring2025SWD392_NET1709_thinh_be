@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fpt.swd392.cvsts.dto.response.VaccineBasicInfoDTO;
 import com.fpt.swd392.cvsts.dto.response.VaccineLineServiceDTO;
 import com.fpt.swd392.cvsts.dto.response.VaccineServiceDTO;
+import com.fpt.swd392.cvsts.entities.Vaccine;
+import com.fpt.swd392.cvsts.entities.VaccinePackage;
 import com.fpt.swd392.cvsts.repositories.VaccinePackageRepository;
 import com.fpt.swd392.cvsts.utils.ApiResponse;
 import com.fpt.swd392.cvsts.utils.PageBound;
@@ -21,9 +24,12 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
-public class VaccinePackageService {
+public class VaccinePackageService implements IVacccinePackageService{
     @Autowired
     private VaccinePackageRepository vaccinePackageRepository;
+
+    @Autowired
+    private VaccineService vaccineService;
 
     public ApiResponse<List<VaccineServiceDTO>> getAllVaccinePackageDetails(int page , int size) {
         try {
@@ -73,4 +79,28 @@ public class VaccinePackageService {
             }
         }
     }
+
+    public VaccineBasicInfoDTO getVaccineBasicInfos(){
+        List<Object[]> vaccinePackageResults = vaccinePackageRepository.getVaccinePackageIdandName();
+        List<VaccinePackage> vaccinePackages = getVaccinePackagesBasicInfo(vaccinePackageResults);
+        List<Vaccine> vaccines = vaccineService.getVaccineBasicInfo();
+        VaccineBasicInfoDTO vaccineBasicInfoDTO = new VaccineBasicInfoDTO(vaccines, vaccinePackages);
+        return vaccineBasicInfoDTO;
+    }
+
+    public List<VaccinePackage> getVaccinePackagesBasicInfo(List<Object[]> results){
+        List<VaccinePackage> vaccinePackages = mapToVaccinePackageBasicInfo(results);
+        return vaccinePackages;
+    }
+
+    public List<VaccinePackage> mapToVaccinePackageBasicInfo(List<Object[]> results){
+        List<VaccinePackage> vaccinePackages = results.stream().map(vpd -> {
+            VaccinePackage vaccinePackage = new VaccinePackage();
+            vaccinePackage.setId(vpd[0].toString());
+            vaccinePackage.setName(vpd[1].toString());
+            return vaccinePackage;
+        }).collect(Collectors.toList());
+        return vaccinePackages;
+    }
+
 }
